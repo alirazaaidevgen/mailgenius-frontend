@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useRef, useCallback } from 'react'
 import {
   Upload, Mail, Send, Eye, CheckCircle2, Loader2, RefreshCw,
@@ -6,7 +8,7 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const DEFAULT_SUBJECT = `Quick question about paid guest posting on your site`
 
