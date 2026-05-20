@@ -55,8 +55,7 @@ interface Row {
 
 interface Config {
   senderName: string
-  gmailUser: string
-  gmailPassword: string
+  fromEmail: string
   templateSubject: string
   templateBody: string
   sendLimit: number
@@ -229,7 +228,7 @@ export default function App() {
   const [preview, setPreview] = useState<Row | null>(null)
   const [sendingId, setSendingId] = useState<number | null>(null)
   const [config, setConfig] = useState<Config>({
-    senderName: '', gmailUser: '', gmailPassword: '',
+    senderName: '', fromEmail: '',
     templateSubject: DEFAULT_SUBJECT,
     templateBody: DEFAULT_BODY,
     sendLimit: 0,
@@ -287,16 +286,15 @@ export default function App() {
   }
 
   const sendEmail = async (row: Row) => {
-    if (!config.gmailUser || !config.gmailPassword) return alert('Set Gmail credentials in Template settings first.')
+    if (!config.fromEmail) return alert('Set your From Email in Template settings first.')
     setSendingId(row.id); updateRow(row.id, { status: 'sending' })
     try {
       const { data } = await axios.post(`${API}/api/send-email`, {
-        to_email:       row.email,
-        subject:        row.subject,
-        body:           row.body,
-        sender_name:    config.senderName,
-        gmail_user:     config.gmailUser,
-        gmail_password: config.gmailPassword,
+        to_email:    row.email,
+        subject:     row.subject,
+        body:        row.body,
+        sender_name: config.senderName,
+        gmail_user:  config.fromEmail,
       })
       updateRow(row.id, { status: data.success ? 'sent' : 'failed', error: data.success ? undefined : data.message })
     } catch { updateRow(row.id, { status: 'failed', error: 'Network error' }) }
@@ -503,15 +501,11 @@ export default function App() {
               </div>
 
               <div className="settings-card">
-                <h2 className="card-title">Gmail Credentials</h2>
+                <h2 className="card-title">From Email</h2>
                 <div className="field-group">
-                  <label className="field-label">Gmail Address</label>
-                  <input type="email" value={config.gmailUser} onChange={cfg('gmailUser')} className="field" placeholder="you@gmail.com" />
-                </div>
-                <div className="field-group">
-                  <label className="field-label">App Password</label>
-                  <input type="password" value={config.gmailPassword} onChange={cfg('gmailPassword')} className="field" placeholder="xxxx xxxx xxxx xxxx" />
-                  <p className="field-hint-text">Google Account → Security → 2-Step Verification → App Passwords</p>
+                  <label className="field-label">From Email Address *</label>
+                  <input type="email" value={config.fromEmail} onChange={cfg('fromEmail')} className="field" placeholder="you@gmail.com" />
+                  <p className="field-hint-text">Must be verified as a sender in your Brevo account (Transactional → Senders)</p>
                 </div>
               </div>
 
